@@ -274,4 +274,5 @@ class MedAuthApp(ctk.CTk):
 if __name__ == "__main__":
     db.initialize_database()  # Pre-verify database structures are ready
     
-    
+    app = MedAuthApp()
+    app.mainloop()            # Starts Tkinter's infinite window rendering loop            
