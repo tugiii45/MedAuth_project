@@ -55,7 +55,7 @@ class PreAuthRequest:
         return True
 
 
-    @staticmethod  
+    
     def fetch_icd_definition(icd_code):             
 
        url = f"https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?terms={icd_code}" 
