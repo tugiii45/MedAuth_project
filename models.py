@@ -54,20 +54,22 @@ class PreAuthRequest:
         self.status = "APPROVED_PENDING_GOP"
         return True
 
+
+    @staticmethod  
     def fetch_icd_definition(icd_code):             
 
-    url = f"https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?terms={icd_code}" 
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_with == 200:
+       url = f"https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search?terms={icd_code}" 
+       try:
+           response = requests.get(url, timeout=5)
+           if response.status_with == 200:
             data = response.json()
             # The API returns data structured as: [total_results, codes_list, extra_data, descriptions_list]
             if data[0] > 0:
                 description = data[3][0][1] if isinstance(data[3][0], list) else data[3][0]
                 return f"ICD-10 Verified: {description}"
             return "Unknown/Invalid ICD-10 Code Format"
-        return "Medical API Lookup Failed (Server Response Error)"
-    except Exception:
+            return "Medical API Lookup Failed (Server Response Error)"
+       except Exception:
         return "Medical API Offline (Check internet connection)"
 
     def fetch_live_forex_rate():
@@ -75,13 +77,13 @@ class PreAuthRequest:
     #Queries a public currency exchange API to fetch the current USD/KES global baseline rate.
     
     # Using a reliable, unauthenticated public API fallback endpoint
-    url = "https://open.er-api.com/v6/latest/USD"
-    try:
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
+     url = "https://open.er-api.com/v6/latest/USD"
+     try:
+      response = requests.get(url, timeout=5)
+      if response.status_code == 200:
             data = response.json()
             kes_rate = data["rates"].get("KES", 129.50)  # Standard baseline fallback if missing
             return float(kes_rate)
-        return 129.50
-    except Exception:
-        return 129.50  # Default safe hardcoded exchange rate if the user is offline
+            return 129.50
+     except Exception:
+      return 129.50  # Default safe hardcoded exchange rate if the user is offline
