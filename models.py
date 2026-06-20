@@ -17,10 +17,9 @@ class Member: #Represents an insured client.
         self.policy_obj = policy_obj # Composition: Member HAS A Policy
 
 class PreAuthRequest:
- """
-    The core operational entity. Manages checking insurance coverage,
-    applying contracted tariffs, and calculating financial liabilities.
-"""        
+ 
+    #The core operational entity. Manages checking insurance coverage, applying contracted tariffs, and calculating financial liabilities.
+        
     def __init__(self, member_obj, hospital_name, procedure, proposed_cost):
         self.member = member_obj
         self.hospital_name = hospital_name
