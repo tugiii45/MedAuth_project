@@ -30,8 +30,9 @@ class MedAuthApp(ctk.CTk):
         self.grid_columnconfigure(1, weight=4)   # Column 1: Right Dashboard Workspace (Wide)
         self.grid_rowconfigure(0, weight=1)      # Row 0 takes up the full vertical height
 
-       
-        
+        # Call methods to design the layouts
+        self._build_sidebar()
+        self._build_main_workspace()
 
     def _async_load_forex(self):
         """Fetches dynamic exchange metrics without freezing the main window main loop thread."""
