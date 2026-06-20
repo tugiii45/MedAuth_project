@@ -78,7 +78,6 @@ class MedAuthApp(ctk.CTk):
         workspace = ctk.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
         workspace.grid(row=0, column=1, sticky="nsew", padx=15, pady=15)
 
-        # ================= SECTION 1: IDENTITY ACCESS PANEL =================
         id_group = ctk.CTkFrame(workspace)
         id_group.pack(padx=0, pady=10, fill="x")
         
@@ -121,13 +120,12 @@ class MedAuthApp(ctk.CTk):
         self.ent_icd = ctk.CTkEntry(adj_group, placeholder_text="e.g., M16.1 or K35.8", width=280)
         self.ent_icd.grid(row=4, column=1, padx=15, pady=5, sticky="w")
         
-        self.lbl_icd_status = ctk.CTkLabel(adj_group, text="Clinical Verification: Pending Validation Lookup", text_color="gray", font=ctk.CTkFont(size=12, italic=True))
+        self.lbl_icd_status = ctk.CTkLabel(adj_group, text="Clinical Verification: Pending Validation Lookup", text_color="gray", font=ctk.CTkFont(size=12, slant="italic"))
         self.lbl_icd_status.grid(row=5, column=1, padx=15, pady=(2, 12), sticky="w")
 
         # Large Evaluation Trigger Button
-        self.btn_adjudicate = ctk.CTkButton(adj_group, text="🚀 Evaluate Financial Liability Rules", fill="x", command=self._action_adjudicate_claim)
-        self.btn_adjudicate.grid(row=6, column=0, columnspan=2, padx=15, pady=15)
-
+        self.btn_adjudicate = ctk.CTkButton(adj_group, text="🚀 Evaluate Financial Liability Rules", command=self._action_adjudicate_claim)
+        self.btn_adjudicate.grid(row=6, column=0, columnspan=2, padx=15, pady=15, sticky="ew")
         # ================= SECTION 3: TRANSACTIONAL RESPONSE SCREEN =================
         self.res_group = ctk.CTkFrame(workspace, fg_color=("#F4F4F4", "#202020"))
         self.res_group.pack(padx=0, pady=10, fill="both", expand=True)
