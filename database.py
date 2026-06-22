@@ -10,20 +10,21 @@ def get_db_connection():
     return conn
 
 def initialize_database():
-    #Creates the structural tables and seeds initial mock data if tables are empty.
+    """Creates the structural tables and seeds initial mock data if tables are empty."""
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # 1. Enable Foreign Key Constraints in SQLite
     cursor.execute("PRAGMA foreign_keys = ON;")
 
+    # 2. Create Policies Table
     cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS tariffs
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    hospital_name TEXT NOT NULL,
-                    procedure_name TEXT NOT NULL,
-                    tariff_cap REAL NOT NULL,
-                    UNIQUE(hospital_name, procedure_name)
-                  """)
+    CREATE TABLE IF NOT EXISTS policies (
+        policy_tier TEXT PRIMARY KEY,
+        annual_limit REAL NOT NULL,
+        copay_percent REAL NOT NULL
+    );
+    """)
 
     # 3. Create Members Table (Links to Policies via Foreign Key)
     cursor.execute("""
@@ -35,7 +36,6 @@ def initialize_database():
         FOREIGN KEY (policy_tier) REFERENCES policies(policy_tier)
     );
     """)
-
 
     # 4. Create Hospital Contract Tariffs Table
     cursor.execute("""
@@ -66,9 +66,9 @@ def initialize_database():
     );
     """)
 
-
+    # --- SEEDING MOCK DATA FOR THE UI TO QUERY ---
     cursor.execute("SELECT COUNT(*) FROM policies;")
-    if cursor.fetchone()[0] == 0:    
+    if cursor.fetchone()[0] == 0:
         # Seed Policy Tiers
         cursor.executemany("""
         INSERT INTO policies (policy_tier, annual_limit, copay_percent)
@@ -86,7 +86,7 @@ def initialize_database():
         """, [
             ("CIG-1001", "Conrad Mutugi", 1850000.0, "Corporate Gold"),
             ("CIG-1002", "Cate Sian", 940000.0, "Retail Silver"),
-            ("CIG-1003", "Reagan Ofula", 45000.0, "SME Bronze")
+            ("CIG-1003", "Reagan Kendwa", 45000.0, "SME Bronze")
         ])
 
         # Seed Pre-Negotiated Hospital Tariff Prices
@@ -97,12 +97,13 @@ def initialize_database():
             ("The Nairobi Hospital", "Appendectomy", 150000.0),
             ("The Aga Khan Hospital", "Cholecystectomy", 220000.0),
             ("MP Shah Hospital", "Appendectomy", 85000.0),
-            ("The Nairobi Hospital", "Cholecystectomy", 130000.0)
+            ("Kajiado District Hospital", "Cholecystectomy", 130000.0)
         ])
+
         conn.commit()
-        print("🎉 Database initialized and seeded successfully!")
+        print("Database initialized and seeded successfully!")
     else:
-        print("🔄 Database already initialized. Skipping seeding step.")
+        print("Database already initialized. Skipping seeding step.")
 
     conn.close()
 
@@ -157,5 +158,5 @@ def log_transaction(member_id, hospital, procedure, proposed, allowed, blocked, 
         conn.commit()
     conn.close()
 
-    if __name__ == "__main__":
-       initialize_database()
+    
+initialize_database()
