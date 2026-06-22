@@ -145,3 +145,17 @@ def log_transaction(member_id, hospital, procedure, proposed, allowed, blocked, 
         (member_id, hospital_name, procedure_name, proposed_cost, allowed_amount, overcharge_blocked, insurer_liability, patient_copay, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
     """, (member_id, hospital, procedure, proposed, allowed, blocked, insurer, patient, status))
+
+    # If claim was approved or issued a GOP, deduct the used insurance pool balance from the member
+    if "APPROVED" in status or "GOP" in status:
+        cursor.execute("""
+            UPDATE members 
+            SET remaining_balance = remaining_balance - ? 
+            WHERE member_id = ?;
+        """, (allowed, member_id))
+
+        conn.commit()
+    conn.close()
+
+    if __name__ == "__main__":
+       initialize_database()
