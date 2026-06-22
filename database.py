@@ -99,4 +99,49 @@ def initialize_database():
             ("MP Shah Hospital", "Appendectomy", 85000.0),
             ("The Nairobi Hospital", "Cholecystectomy", 130000.0)
         ])
+        conn.commit()
+        print("🎉 Database initialized and seeded successfully!")
+    else:
+        print("🔄 Database already initialized. Skipping seeding step.")
 
+    conn.close()
+
+
+def lookup_member_data(member_id):
+    """Fetches a member joined with their specific policy tier settings."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+     #JOIN Query
+    cursor.execute(""" 
+        SELECT m.member_id, m.name, m.remaining_balance, p.policy_tier, p.annual_limit, p.copay_percent
+        FROM members m
+        JOIN policies p ON m.policy_tier = p.policy_tier
+        WHERE m.member_id = ?;
+    """, (member_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+    return row
+
+def lookup_tariff_rate(hospital_name, procedure_name):
+    """Fetches the pre-negotiated legal price ceiling for a procedure at a hospital."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT tariff_cap FROM tariffs 
+        WHERE hospital_name = ? AND procedure_name = ?;
+    """, (hospital_name, procedure_name))
+    row = cursor.fetchone()
+    conn.close()
+    return row['tariff_cap'] if row else None
+
+def log_transaction(member_id, hospital, procedure, proposed, allowed, blocked, insurer, patient, status):
+    """Commits an immutable record into the authorization transaction ledger."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO authorization_ledger 
+        (member_id, hospital_name, procedure_name, proposed_cost, allowed_amount, overcharge_blocked, insurer_liability, patient_copay, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+    """, (member_id, hospital, procedure, proposed, allowed, blocked, insurer, patient, status))
