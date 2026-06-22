@@ -159,4 +159,5 @@ def log_transaction(member_id, hospital, procedure, proposed, allowed, blocked, 
     conn.close()
 
     
-initialize_database()
+    
+initialize_database()   
