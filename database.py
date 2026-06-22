@@ -65,3 +65,38 @@ def initialize_database():
         FOREIGN KEY (member_id) REFERENCES members(member_id)
     );
     """)
+
+
+    cursor.execute("SELECT COUNT(*) FROM policies;")
+    if cursor.fetchone()[0] == 0:    
+        # Seed Policy Tiers
+        cursor.executemany("""
+        INSERT INTO policies (policy_tier, annual_limit, copay_percent)
+        VALUES (?, ?, ?);
+        """, [
+            ("Corporate Gold", 2500000.0, 10.0),   # KSh 2.5M Limit, 10% Copay
+            ("Retail Silver", 1200000.0, 15.0),    # KSh 1.2M Limit, 15% Copay
+            ("SME Bronze", 600000.0, 20.0)         # KSh 600k Limit, 20% Copay
+        ])
+
+        # Seed Member Profiles
+        cursor.executemany("""
+        INSERT INTO members (member_id, name, remaining_balance, policy_tier)
+        VALUES (?, ?, ?, ?);
+        """, [
+            ("CIG-1001", "Conrad Mutugi", 1850000.0, "Corporate Gold"),
+            ("CIG-1002", "Cate Sian", 940000.0, "Retail Silver"),
+            ("CIG-1003", "Reagan Ofula", 45000.0, "SME Bronze")
+        ])
+
+        # Seed Pre-Negotiated Hospital Tariff Prices
+        cursor.executemany("""
+        INSERT INTO tariffs (hospital_name, procedure_name, tariff_cap)
+        VALUES (?, ?, ?);
+        """, [
+            ("The Nairobi Hospital", "Appendectomy", 150000.0),
+            ("The Aga Khan Hospital", "Cholecystectomy", 220000.0),
+            ("MP Shah Hospital", "Appendectomy", 85000.0),
+            ("The Nairobi Hospital", "Cholecystectomy", 130000.0)
+        ])
+
