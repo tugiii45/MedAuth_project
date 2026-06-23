@@ -1,5 +1,7 @@
 import sqlite3
 
+import hashlib
+
 DATABASE_NAME = "medauth.db"
 
 def get_db_connection():
@@ -158,6 +160,31 @@ def log_transaction(member_id, hospital, procedure, proposed, allowed, blocked, 
         conn.commit()
     conn.close()
 
-    
+
+def initialize_users_table():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        username TEXT PRIMARY KEY,
+        password_hash TEXT NOT NULL,
+        role TEXT NOT NULL
+    );
+    """)
+    # Seed a default admin
+    cursor.execute("INSERT OR IGNORE INTO users VALUES (?, ?, ?)", 
+                   ("admin", hashlib.sha256("password123".encode()).hexdigest(), "ADMIN"))
+    conn.commit()
+    conn.close()
+
+def verify_user(username, password):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    hashed_input = hashlib.sha256(password.encode()).hexdigest()
+    cursor.execute("SELECT * FROM users WHERE username = ? AND password_hash = ?", 
+                   (username, hashed_input))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None    
     
 initialize_database()   
