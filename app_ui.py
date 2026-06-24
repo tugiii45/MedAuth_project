@@ -25,3 +25,30 @@ class LoginWindow(ctk.CTkToplevel):
             self.destroy()
         else:
             self.title("Access Denied!")
+
+class MedAuthApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("🛡️ MedAuth Pro — Claims Adjudication")
+        self.geometry("800x500")
+
+        self.label = ctk.CTkLabel(self, text="Member Claims Portal", font=("Arial", 20, "bold"))
+        self.label.pack(pady=20)
+
+        self.ent_member = ctk.CTkEntry(self, placeholder_text="Enter Member ID")
+        self.ent_member.pack(pady=10)
+
+        self.btn_search = ctk.CTkButton(self, text="Lookup Member", command=self.search_member)
+        self.btn_search.pack(pady=10)
+
+        self.display = ctk.CTkTextbox(self, width=500, height=150)
+        self.display.pack(pady=20)
+
+    def search_member(self):
+        m_id = self.ent_member.get()
+        data = lookup_member_data(m_id)
+        self.display.delete("0.0", "end")
+        self.display.insert("0.0", str(data) if data else "Member Not Found.")
+
+
+    
