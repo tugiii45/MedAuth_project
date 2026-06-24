@@ -19,6 +19,8 @@ def initialize_database():
     # 1. Enable Foreign Key Constraints in SQLite
     cursor.execute("PRAGMA foreign_keys = ON;")
 
+    initialize_users_table()
+
     # 2. Create Policies Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS policies (
