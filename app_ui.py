@@ -72,7 +72,7 @@ class MedAuthApp(ctk.CTk):
         self.lbl_diagnostic_desc = ctk.CTkLabel(
             self.form_frame, 
             text="[No verified diagnostic term fetched]", 
-            font=ctk.CTkFont(size=11, italic=True),
+            font=ctk.CTkFont(size=11, slant="italic"),
             text_color="#718096",
             wraplength=260,
             justify="left"

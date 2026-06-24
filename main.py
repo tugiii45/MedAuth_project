@@ -4,19 +4,22 @@ import database as db
 from app_ui import MedAuthApp, LoginWindow
 
 def start_main_app():
-    """Launches the primary Adjudication Portal."""
+    """Destroys the login window and initializes the main portal."""
     app = MedAuthApp()
     app.mainloop()
 
 def main():
-    """Orchestrates secure DB initialization and authentication flow."""
     try:
         print("Initializing secure database pipeline...")
         db.initialize_database()
     except Exception as e:
         print(f"CRITICAL ERROR: Database Initialization Failed: {e}")
-        print("Aborting application startup sequence.")
         sys.exit(1)
 
-    login = LoginWindow(on_success=start_main_app)
+    # Launch the Login Window as the main entry point
+    # We pass the start_main_app function as the success callback
+    login = LoginWindow(on_success=lambda: (login.destroy(), start_main_app()))
     login.mainloop()
+
+if __name__ == "__main__":
+    main()
