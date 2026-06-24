@@ -18,18 +18,5 @@ def main():
         print("Aborting application startup sequence.")
         sys.exit(1)
 
-    # Security Entry Point: Initialize the root layer
-    root = ctk.CTk()
-    root.withdraw()  # Hide the main window while the login screen is active
-
-    # Launch Login Window
-    # The 'on_success' lambda destroys the root and triggers the dashboard
-    login = LoginWindow(on_success=lambda: (root.destroy(), start_main_app()))
-    
-    root.mainloop()
-
-    print("\n==================================================")
-    print("🛑 Application closed safely. Database pipeline disconnected.")
-
-if __name__ == "__main__":
-    main()
+    login = LoginWindow(on_success=start_main_app)
+    login.mainloop()
