@@ -3,22 +3,23 @@ import customtkinter as ctk
 import database as db
 from app_ui import MedAuthApp, LoginWindow
 
-def start_main_app():
-    """Destroys the login window and initializes the main portal."""
-    app = MedAuthApp()
-    app.mainloop()
-
 def main():
+    # 1. Initialize Database first to ensure data availability
     try:
-        print("Initializing secure database pipeline...")
+        print("Starting MedAuth System...")
         db.initialize_database()
     except Exception as e:
-        print(f"CRITICAL ERROR: Database Initialization Failed: {e}")
+        print(f"CRITICAL ERROR: Database initialization failed: {e}")
         sys.exit(1)
 
-    # Launch the Login Window as the main entry point
-    # We pass the start_main_app function as the success callback
-    login = LoginWindow(on_success=lambda: (login.destroy(), start_main_app()))
+    # 2. Define the transition logic
+    def start_app():
+        
+        app = MedAuthApp()
+        app.mainloop()
+
+    # 3. Launch Login Window
+    login = LoginWindow(start_app)
     login.mainloop()
 
 if __name__ == "__main__":
