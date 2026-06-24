@@ -119,3 +119,14 @@ class MedAuthApp(ctk.CTk):
         self.txt_log = ctk.CTkTextbox(self.audit_frame, font=ctk.CTkFont(family="Courier", size=12))
         self.txt_log.pack(fill="both", expand=True, padx=15, pady=(0, 15))
         self.txt_log.insert("0.0", "SYSTEM STANDBY: Ready to verify medical claims parameters...\n")
+
+        
+    def trigger_nlm_lookup(self):
+            """Spawns an isolated background worker thread to pull terms from the US Medical Library."""
+            target_code = self.ent_icd.get().strip().upper()
+            if not target_code:
+                self.lbl_diagnostic_desc.configure(text="❌ Error: Please enter a code first", text_color="#e53e3e")
+                return
+    
+            self.lbl_diagnostic_desc.configure(text="⏳ Accessing National Library of Medicine API...", text_color="#3182ce")
+            threading.Thread(target=self._fetch_nlm_api_worker, args=(target_code,), daemon=True).start()    
