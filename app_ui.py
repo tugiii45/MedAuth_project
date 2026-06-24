@@ -51,4 +51,20 @@ class MedAuthApp(ctk.CTk):
         self.display.insert("0.0", str(data) if data else "Member Not Found.")
 
 
-    
+    def process_claim(self, hospital, procedure, cost):
+        # 1. Fetch tariff cap
+        tariff = lookup_tariff_rate(hospital, procedure)
+        
+        # 2. Logic to calculate liability
+        allowed = min(cost, tariff)
+        overcharge = cost - allowed
+        
+        # 3. Log to database
+        log_transaction(self.ent_member.get(), hospital, procedure, cost, allowed, overcharge, 0, 0, "Approved")
+        
+        # 4. Save to file
+        report = f"Report for {self.ent_member.get()}: Allowed {allowed}"
+        with open("last_claim.txt", "w") as f:
+            f.write(report)
+        
+        self.display.insert("end", "\nClaim Processed & File Exported.")                
