@@ -1,133 +1,20 @@
 import tkinter as tk
 import customtkinter as ctk
 import threading
-import requests
-# Relational DB integrations 
-from database import lookup_member_data, lookup_tariff_rate, log_transaction, get_db_connection, estimate_procedure_cost
+
 from tkinter import messagebox
 
-# Set theme configuration
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
+from nlm_api import fetch_icd_description
+
+from database import (
+    lookup_member_data,
+    lookup_tariff_rate,
+    log_transaction,
+    estimate_procedure_cost
+)
 
 
-class LoginWindow(ctk.CTk):
-    """Secure Gateway access screen (login gate) for the MedAuth desktop UI.
-
-    Notes:
-    - This UI collects an operator username and a password PIN.
-    - The current implementation performs a direct comparison against the value stored
-      in the `users.password_hash` column.
-    """
-
-    def __init__(self, on_success_callback):
-        super().__init__()
-        self.on_success_callback = on_success_callback
-
-        # Window Setup (simple, fixed-size modal-like gate).
-        self.title("🛡️ MedAuth Gatekeeper — Authorization Required")
-        self.geometry("400x320")
-        self.resizable(False, False)
-
-        # Center layout.
-        self.grid_columnconfigure(0, weight=1)
-
-        # Header Title.
-        self.lbl_title = ctk.CTkLabel(
-            self,
-            text="MEDAUTH SYSTEM ACCESS",
-            font=ctk.CTkFont(size=16, weight="bold"),
-            text_color="#1a365d",
-        )
-        self.lbl_title.pack(pady=(30, 20))
-
-        # Credentials Fields.
-        self.ent_username = ctk.CTkEntry(self, placeholder_text="Username / Operator ID", width=260)
-        self.ent_username.pack(pady=10)
-
-        self.ent_password = ctk.CTkEntry(
-            self, placeholder_text="Security Password Pin", show="*", width=260
-        )
-        self.ent_password.pack(pady=10)
-
-        # Interactive Status Feedback Line.
-        self.lbl_status = ctk.CTkLabel(
-            self, text="Please authenticate to proceed", font=ctk.CTkFont(size=12)
-        )
-        self.lbl_status.pack(pady=5)
-
-        # Action Execution Trigger.
-        self.btn_login = ctk.CTkButton(
-            self,
-            text="Authenticate Session",
-            width=260,
-            font=ctk.CTkFont(weight="bold"),
-            command=self.verify_credentials,
-        )
-        self.btn_login.pack(pady=(15, 20))
-
-    def verify_credentials(self):
-        """Validate operator credentials against the SQLite `users` table.
-
-        Current behavior:
-        - Reads input values from the username and password fields.
-        - Queries `users.password_hash` for the provided username.
-        - Compares the stored value to the user-entered password.
-
-        Security note:
-        - Although the column is named `password_hash`, the current comparison is a
-          direct equality check (no hashing performed here). This is documented for
-          clarity and may need improvement in a real deployment.
-        """
-
-        username = self.ent_username.get().strip()
-        password = self.ent_password.get().strip()
-
-        # Basic client-side validation to avoid unnecessary DB calls.
-        if not username or not password:
-            self.lbl_status.configure(
-                text="❌ Input fields cannot be empty.", text_color="#e53e3e"
-            )
-            return
-
-        try:
-            # Query only the password value we need for verification.
-            with get_db_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT password_hash FROM users WHERE username = ?;",
-                    (username,),
-                )
-                row = cursor.fetchone()
-
-            # If a record exists, compare stored value to user-entered secret.
-            # (See Security note in the docstring.)
-            if row and row["password_hash"] == password:
-                self.lbl_status.configure(
-                    text="✅ Verification successful! Loading...",
-                    text_color="#2f855a",
-                )
-                # Small delay so the user sees the success state.
-                self.after(600, self.grant_access)
-            else:
-                self.lbl_status.configure(
-                    text="❌ Invalid operator identification mismatch.",
-                    text_color="#e53e3e",
-                )
-        except Exception:
-            # Keep the error generic for UI clarity.
-            self.lbl_status.configure(
-                text="❌ Database initialization handshake failure.",
-                text_color="#e53e3e",
-            )
-
-    def grant_access(self):
-        """Closes the security prompt screen and spins up the mainframe."""
-        self.destroy()
-        self.on_success_callback()
-
-
-class MedAuthApp(ctk.CTk):
+class CaseManagerDashboard(ctk.CTk):
     def __init__(self):
         super().__init__()
 
@@ -275,6 +162,31 @@ class MedAuthApp(ctk.CTk):
 )
         self.lbl_pulse_info.pack(pady=(5, 10))
 
+
+    def _fetch_nlm_api_worker(self, code):
+      """
+     Background worker for ICD-10 lookups.
+      Runs in a separate thread so the UI remains responsive.
+     """
+
+      description = fetch_icd_description(code)
+
+      if description:
+         self.after(
+            0,
+            lambda: self.lbl_diagnostic_desc.configure(
+                text=f"✅ NLM Confirmed: {description}",
+                text_color="#2f855a",
+            ),
+        )
+      else:
+        self.after(
+            0,
+            lambda: self.lbl_diagnostic_desc.configure(
+                text="⚠️ Code not recognized by NLM database",
+                text_color="#dd6b20",
+            ),
+        )
     # -------------------------------------------------------------
     # ASYNCHRONOUS BACKEND NETWORK CONTROLLERS
     # -------------------------------------------------------------
@@ -305,68 +217,7 @@ class MedAuthApp(ctk.CTk):
             daemon=True,
         ).start()
 
-    def _fetch_nlm_api_worker(self, code):
-        """Background worker that calls NLM's ICD-10 lookup endpoint.
-
-        Why this exists:
-        - Network requests would block the Tkinter event loop.
-        - This method runs in a daemon thread and reports results back to the UI
-          using `self.after(0, ...)`.
-
-        Expected response:
-        - The NLM endpoint returns JSON with nested arrays.
-        - This code extracts the first `short_desc` from the result set.
-        """
-        try:
-            # Build the request URL (ICD-10 CM Clinical Table search endpoint).
-            url = (
-                "https://clinicaltables.nlm.nih.gov/api/icd10cm/v3/search"
-                f"?terms={code}&sf=code,short_desc"
-            )
-
-            # Keep timeout short so the UI never appears hung for too long.
-            response = requests.get(url, timeout=5)
-
-            if response.status_code == 200:
-                data = response.json()
-
-                # Defensive parsing: NLM's JSON shape is not guaranteed; we validate
-                # indices before extracting.
-                if data and len(data) > 3 and data[3]:
-                    extracted_description = data[3][0][1]
-                    self.after(
-                        0,
-                        lambda: self.lbl_diagnostic_desc.configure(
-                            text=f"✅ NLM Confirmed: {extracted_description}",
-                            text_color="#2f855a",
-                        ),
-                    )
-                else:
-                    self.after(
-                        0,
-                        lambda: self.lbl_diagnostic_desc.configure(
-                            text="⚠️ Code not recognized by NLM database",
-                            text_color="#dd6b20",
-                        ),
-                    )
-            else:
-                # Non-200 indicates service-side or request-side failures.
-                self.after(
-                    0,
-                    lambda: self.lbl_diagnostic_desc.configure(
-                        text="❌ Connection issue contacting NLM API",
-                        text_color="#e53e3e",
-                    ),
-                )
-        except Exception:
-            # Catch-all: includes timeouts, connectivity errors, JSON errors.
-            self.after(
-                0,
-                lambda: self.lbl_diagnostic_desc.configure(
-                    text="❌ Offline: Failed to fetch definition data",
-                    text_color="#e53e3e",
-                ),
-            )
+    
 
     # -------------------------------------------------------------
     # ADJUDICATION RULES ENGINE INTEGRATOR
@@ -592,3 +443,7 @@ Generated by MedAuth Pro
         "Letter of Guarantee",
          gop_text
     )  
+
+if __name__ == "__main__":
+    app = CaseManagerDashboard()
+    app.mainloop()

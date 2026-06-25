@@ -9,7 +9,9 @@ This module is responsible for:
 import sys
 import customtkinter as ctk
 import database as db
-from app_ui import MedAuthApp, LoginWindow
+from login import LoginWindow
+from case_manager import CaseManagerDashboard
+from patient_dashboard import PatientDashboard
 
 
 def main():
@@ -32,8 +34,8 @@ def main():
     # This callback is passed into the login window; on successful auth it will run
     # and show the main application.
     def start_app():
-        app = MedAuthApp()
-        app.mainloop()
+         app = PatientDashboard()
+         app.mainloop() 
 
     # 3) Launch the login window (access gate) and block until the user authenticates.
     login = LoginWindow(start_app)

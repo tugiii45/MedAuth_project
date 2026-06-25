@@ -47,10 +47,14 @@ def initialize_users_table():
         cursor.execute("SELECT COUNT(*) FROM users;")
         if cursor.fetchone()[0] == 0:
             # Security note: In production, store a real salted hash (bcrypt/argon2).
-            cursor.execute(
-                "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?);",
-                ("admin", "admin_secure_hash", "Administrator"),
-            )
+            cursor.executemany(
+    "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?);",
+    [
+        ("admin", "1234", "case_manager"),
+        ("patient1", "1234", "patient")
+    ]
+)
+            
         conn.commit()
 
 
