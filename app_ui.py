@@ -239,6 +239,31 @@ class MedAuthApp(ctk.CTk):
         self.txt_log.insert("0.0", "SYSTEM STANDBY: Ready to verify medical claims parameters...\n")
 
     # -------------------------------------------------------------
+# BENEFIT PULSE TRACKER
+# -------------------------------------------------------------
+        self.lbl_pulse_title = ctk.CTkLabel(
+          self.audit_frame,
+          text="📊 Benefit Pulse Tracker",
+          font=ctk.CTkFont(weight="bold", size=14)
+)
+        self.lbl_pulse_title.pack(pady=(10, 5))
+
+        self.pulse_bar = ctk.CTkProgressBar(
+           self.audit_frame,
+           width=350
+)
+        self.pulse_bar.pack(pady=5)
+
+        self.pulse_bar.set(0)
+
+        self.lbl_pulse_info = ctk.CTkLabel(
+          self.audit_frame,
+          text="Coverage utilization will appear here",
+          justify="left"
+)
+        self.lbl_pulse_info.pack(pady=(5, 10))
+
+    # -------------------------------------------------------------
     # ASYNCHRONOUS BACKEND NETWORK CONTROLLERS
     # -------------------------------------------------------------
     def trigger_nlm_lookup(self):
@@ -376,6 +401,42 @@ class MedAuthApp(ctk.CTk):
         policy_name = member_row["policy_tier"]
         copay_pct = member_row["copay_percent"]
         remaining_balance = member_row["remaining_balance"]
+
+        annual_limit = member_row["annual_limit"]
+
+        used_amount = annual_limit - remaining_balance
+
+        utilization = used_amount / annual_limit
+
+        percentage = round(utilization * 100)
+
+        if percentage < 50:
+            pulse_status = "🟢 Healthy Coverage"
+            pulse_color = "#16a34a"
+
+        elif percentage < 80:
+            pulse_status = "🟡 Moderate Utilization"
+            pulse_color = "#eab308" 
+
+        else:
+            pulse_status = "🔴 Nearing Policy Limit"
+            pulse_color = "#dc2626"  
+
+        self.pulse_bar.set(utilization)
+
+        self.pulse_bar.configure(
+            progress_color=pulse_color
+)     
+
+        self.lbl_pulse_info.configure(
+          text=(
+            f"{pulse_status}\n"
+            f"Annual Limit: KSh {annual_limit:,.2f}\n"
+            f"Used Amount: KSh {used_amount:,.2f}\n"
+            f"Remaining: KSh {remaining_balance:,.2f}\n"
+            f"Utilization: {percentage}%"
+    )
+)
 
         contract_cap = lookup_tariff_rate(hospital, procedure)
         

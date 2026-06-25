@@ -177,33 +177,40 @@ def lookup_member_data(member_id):
 
     Returns:
         dict with keys:
-        - `member_id` (str)
-        - `name` (str)
-        - `remaining_balance` (float)
-        - `policy_tier` (str)
-        - `copay_percent` (float)
+        - member_id
+        - name
+        - remaining_balance
+        - policy_tier
+        - copay_percent
+        - annual_limit
 
-        or `None` if the member id is unknown.
+        or None if the member does not exist.
     """
     with get_db_connection() as conn:
         cursor = conn.cursor()
+
         cursor.execute("""
-            SELECT m.member_id, m.name, m.remaining_balance, m.policy_tier, p.copay_percent 
-            FROM members m
-            JOIN policies p ON m.policy_tier = p.policy_tier
+            SELECT m.member_id, m.name, m.remaining_balance,
+             m.policy_tier, p.copay_percent,
+             p.annual_limit
+             FROM members m
+             JOIN policies p
+                ON m.policy_tier = p.policy_tier
             WHERE m.member_id = ?;
         """, (member_id,))
-        
+
         row = cursor.fetchone()
-        
+
     if row:
         return {
-            "member_id": row["member_id"],
-            "name": row["name"],
-            "remaining_balance": row["remaining_balance"],
-            "policy_tier": row["policy_tier"],
-            "copay_percent": row["copay_percent"]
-        }
+    "member_id": row["member_id"],
+    "name": row["name"],
+    "remaining_balance": row["remaining_balance"],
+    "policy_tier": row["policy_tier"],
+    "copay_percent": row["copay_percent"],
+    "annual_limit": row["annual_limit"]
+}
+
     return None
 
 
