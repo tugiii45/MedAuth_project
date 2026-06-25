@@ -3,7 +3,8 @@ import customtkinter as ctk
 import threading
 import requests
 # Relational DB integrations 
-from database import lookup_member_data, lookup_tariff_rate, log_transaction, get_db_connection
+from database import lookup_member_data, lookup_tariff_rate, log_transaction, get_db_connection, estimate_procedure_cost
+from tkinter import messagebox
 
 # Set theme configuration
 ctk.set_appearance_mode("System")
@@ -226,6 +227,17 @@ class MedAuthApp(ctk.CTk):
             command=self.process_adjudication_claim
         )
         self.btn_adjudicate.pack(pady=(0, 20), padx=20, anchor="w")
+
+        self.btn_estimate = ctk.CTkButton(
+        self.form_frame,
+        text="Estimate Cost",
+        command=self.estimate_cost
+)
+        self.btn_estimate.pack(
+          fill="x",
+          padx=15,
+          pady=10
+)
 
         # --- RIGHT SIDE: LIVE TRANSACTION AUDIT TRAIL ---
         self.audit_frame = ctk.CTkFrame(self.workspace, corner_radius=10)
@@ -485,3 +497,38 @@ class MedAuthApp(ctk.CTk):
             patient_copay_liability,
             status                
         )
+
+    def estimate_cost(self):
+
+      member_id = self.ent_member.get().strip().upper()
+
+      hospital_name = self.opt_hospital.get()
+
+      procedure_name = self.opt_procedure.get()
+
+      estimate = estimate_procedure_cost(
+        member_id,
+        hospital_name,
+        procedure_name
+    )
+
+      if not estimate:
+        messagebox.showerror(
+            "Estimator",
+            "Unable to generate estimate."
+        )
+        return
+
+      result = (
+        f"Procedure Cost Estimate\n\n"
+        f"Hospital: {hospital_name}\n"
+        f"Procedure: {procedure_name}\n\n"
+        f"Tariff Cap: KSh {estimate['tariff_cap']:,.2f}\n"
+        f"Insurance Pays: KSh {estimate['insurer_liability']:,.2f}\n"
+        f"Patient Co-pay: KSh {estimate['patient_copay']:,.2f}"
+    )
+
+      messagebox.showinfo(
+        "Cost Estimate",
+        result
+    )

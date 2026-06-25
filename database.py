@@ -283,6 +283,40 @@ def log_transaction(
         conn.commit()
 
 
+def estimate_procedure_cost(
+    member_id,
+    hospital_name,
+    procedure_name
+):
+    member = lookup_member_data(member_id)
+
+    if not member:
+        return None
+
+    tariff_cap = lookup_tariff_rate(
+        hospital_name,
+        procedure_name
+    )
+
+    if tariff_cap is None:
+        return None
+
+    copay_percent = member["copay_percent"]
+
+    patient_copay = (
+        tariff_cap * copay_percent / 100
+    )
+
+    insurer_liability = (
+        tariff_cap - patient_copay
+    )
+
+    return {
+        "tariff_cap": tariff_cap,
+        "patient_copay": patient_copay,
+        "insurer_liability": insurer_liability
+    }
+
 if __name__ == "__main__":
     # If run directly, reset/setup the database scheme
     initialize_database()
