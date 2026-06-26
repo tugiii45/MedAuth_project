@@ -1,7 +1,10 @@
 import customtkinter as ctk
 from tkinter import messagebox
 
-from database import lookup_member_data
+from database import (
+    lookup_member_data,
+    estimate_procedure_cost
+)
 
 
 class PatientDashboard(ctk.CTk):
@@ -31,6 +34,38 @@ class PatientDashboard(ctk.CTk):
         )
         self.ent_member.pack(pady=10)
 
+        self.lbl_hospital = ctk.CTkLabel(
+        self,
+        text="Hospital"
+)
+        self.lbl_hospital.pack()
+
+        self.opt_hospital = ctk.CTkOptionMenu(
+        self,
+        values=[
+        "The Nairobi Hospital",
+        "The Aga Khan Hospital",
+        "MP Shah Hospital",
+        "Kajiado District Hospital"
+    ]
+)
+        self.opt_hospital.pack(pady=10)
+
+        self.lbl_procedure = ctk.CTkLabel(
+        self,
+        text="Procedure"
+)
+        self.lbl_procedure.pack()
+
+        self.opt_procedure = ctk.CTkOptionMenu(
+        self,
+        values=[
+        "Appendectomy",
+        "Cholecystectomy"
+    ]
+)
+        self.opt_procedure.pack(pady=10)
+
         self.btn_load = ctk.CTkButton(
             self,
             text="Load My Benefits",
@@ -38,11 +73,39 @@ class PatientDashboard(ctk.CTk):
         )
         self.btn_load.pack(pady=10)
 
+        self.btn_estimate = ctk.CTkButton(
+        self,
+        text="Estimate Procedure Cost",
+        command=self.estimate_cost
+)
+        self.btn_estimate.pack(pady=10)
+
+        self.lbl_estimate_title = ctk.CTkLabel(
+        self,
+        text="💰 Estimate Summary",
+        font=ctk.CTkFont(size=14, weight="bold")
+)
+        self.lbl_estimate_title.pack(pady=(15, 5))
+
         self.pulse_bar = ctk.CTkProgressBar(
             self,
             width=400
         )
         self.pulse_bar.pack(pady=20)
+
+        self.txt_estimate = ctk.CTkTextbox(
+        self,
+        width=450,
+        height=140
+)
+        self.txt_estimate.pack(pady=10)
+
+        self.txt_estimate.insert(
+    "1.0",
+    "Procedure cost estimate will appear here..."
+)
+
+        self.txt_estimate.configure(state="disabled")
 
         self.lbl_info = ctk.CTkLabel(
             self,
@@ -83,3 +146,51 @@ class PatientDashboard(ctk.CTk):
             f"Utilization: {round(utilization * 100)}%"
         )
     )
+
+    def estimate_cost(self):
+
+       member_id = self.ent_member.get().strip().upper()
+
+       hospital = self.opt_hospital.get()
+
+       procedure = self.opt_procedure.get()
+
+       estimate = estimate_procedure_cost(
+        member_id,
+        hospital,
+        procedure
+    )
+
+       if not estimate:
+        messagebox.showerror(
+            "Estimate",
+            "Unable to calculate the estimate."
+        )
+        return
+
+       self.txt_estimate.configure(state="normal")
+
+       self.txt_estimate.delete("1.0", "end")
+
+       self.txt_estimate.insert(
+    "1.0",
+    f"""
+       Hospital:
+       {hospital}
+
+       Procedure:
+       {procedure}
+
+       Tariff Cap:
+       KSh {estimate['tariff_cap']:,.2f}
+
+       Insurance Pays:
+       KSh {estimate['insurer_liability']:,.2f}
+
+       Patient Co-pay:
+       KSh {estimate['patient_copay']:,.2f}
+"""
+)
+
+       self.txt_estimate.configure(state="disabled")
+       
