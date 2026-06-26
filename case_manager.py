@@ -85,7 +85,7 @@ class CaseManagerDashboard(ctk.CTk):
         self.lbl_hospital.pack(pady=(5, 2), padx=20, anchor="w")
         self.opt_hospital = ctk.CTkOptionMenu(
             self.form_frame, 
-            values=["The Nairobi Hospital", "The Aga Khan Hospital", "MP Shah Hospital", "Kajiado District Hospital"], 
+            values=["The Nairobi Hospital", "The Aga Khan Hospital", "MP Shah Hospital", "Kajiado District Hospital", "Kenyatta National Hospital"], 
             width=260
         )
         self.opt_hospital.pack(pady=(0, 15), padx=20, anchor="w")
@@ -93,7 +93,10 @@ class CaseManagerDashboard(ctk.CTk):
         # Medical Procedure Menu
         self.lbl_procedure = ctk.CTkLabel(self.form_frame, text="Surgical Procedure Case:", font=ctk.CTkFont(weight="bold"))
         self.lbl_procedure.pack(pady=(5, 2), padx=20, anchor="w")
-        self.opt_procedure = ctk.CTkOptionMenu(self.form_frame, values=["Appendectomy", "Cholecystectomy"], width=260)
+        self.opt_procedure = ctk.CTkOptionMenu(self.form_frame, values=["Appendectomy", "Cholecystectomy", "GastroIntestinal"
+                "Maternal Procedures"
+                "Tonsillectomy"],
+                  width=260)
         self.opt_procedure.pack(pady=(0, 15), padx=20, anchor="w")
 
         # Claim Base Invoice Amount

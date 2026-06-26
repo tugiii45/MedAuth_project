@@ -156,6 +156,9 @@ def initialize_database():
                 ("CIG-1001", "Conrad Mutugi", 1850000.0, "Corporate Gold"),
                 ("CIG-1002", "Cate Sian", 940000.0, "Retail Silver"),
                 ("CIG-1003", "Reagan Kendwa", 45000.0, "SME Bronze"),
+                ("CIG-1004", "Emmanuel Opeto", 200000.0, "Corporate Gold"),
+                ("CIG-1005", "Nia Thatiah", 100000.0, "Retail Silver")
+
             ])
 
             cursor.executemany(
@@ -164,7 +167,22 @@ def initialize_database():
                     ("The Nairobi Hospital", "Appendectomy", 150000.0),
                     ("The Aga Khan Hospital", "Cholecystectomy", 220000.0),
                     ("MP Shah Hospital", "Appendectomy", 85000.0),
-                    ("Kajiado District Hospital", "Cholecystectomy", 130000.0),
+                    ("Kenyatta National Hospital", "Cholecystectomy", 130000.0),
+                    ("The Aga Khan Hospital", "GastroIntestinal", 130000.0),
+                    ("MP Shah Hospital", "GastroIntestinal", 140000.0),
+                    ("The Nairobi Hospital", "GastroIntestinal", 100000.0),
+                    ("The Nairobi Hospital", "Maternal Procedures", 200000.0),
+                    ("Kenyatta National Hospital", "GastroIntestinal", 120000.0),
+                    ("Kajiado District Hospital", "Maternal Procedures", 100000.0),
+                    ("The Aga Khan Hospital", "Maternal Procedures", 250000.0),
+                    ("The Nairobi Hospital", "Tonsillectomy", 110000.0),
+                    ("Kenyatta National Hospital", "Tonsillectomy", 90000.0),
+                    ("The Aga Khan Hospital", "Tonsillectomy", 120000.0),
+                    ("Kajiado District Hospital", "Tonsillectomy", 140000.0),
+                    ("MP Shah Hospital", "Maternal Procedures", 150000.0),
+                    ("Kenyatta National Hospital", "Maternal Procedures", 100000.0),
+
+                
                 ],
             )
 

@@ -31,7 +31,7 @@ class PatientDashboard(ctk.CTk):
         # Member ID label
         self.lbl_member = ctk.CTkLabel(
             self,
-            text="Member ID"
+            text="INSURANCE CARD ID"
         )
         self.lbl_member.pack()
 
@@ -56,7 +56,8 @@ class PatientDashboard(ctk.CTk):
         "The Nairobi Hospital",
         "The Aga Khan Hospital",
         "MP Shah Hospital",
-        "Kajiado District Hospital"
+        "Kajiado District Hospital",
+        "Kenyatta National Hospital"
     ]
 )
         self.opt_hospital.pack(pady=10)
@@ -73,7 +74,10 @@ class PatientDashboard(ctk.CTk):
         self,
         values=[
         "Appendectomy",
-        "Cholecystectomy"
+        "Cholecystectomy",
+        "GastroIntestinal",
+        "Maternal Procedures",
+        "Tonsillectomy"
     ]
 )
         self.opt_procedure.pack(pady=10)
@@ -217,7 +221,7 @@ class PatientDashboard(ctk.CTk):
        Procedure:
        {procedure}
 
-       Tariff Cap:
+       Pay Limit to be Charged:
        KSh {estimate['tariff_cap']:,.2f}
 
        Insurance Pays:
