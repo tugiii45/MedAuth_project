@@ -155,9 +155,9 @@ def initialize_database():
             cursor.executemany("INSERT INTO members VALUES (?, ?, ?, ?);", [
                 ("CIG-1001", "Conrad Mutugi", 1850000.0, "Corporate Gold"),
                 ("CIG-1002", "Cate Sian", 940000.0, "Retail Silver"),
-                ("CIG-1003", "Reagan Kendwa", 45000.0, "SME Bronze"),
-                ("CIG-1004", "Emmanuel Opeto", 200000.0, "Corporate Gold"),
-                ("CIG-1005", "Nia Thatiah", 100000.0, "Retail Silver")
+                ("CIG-1003", "Reagan Kendwa", 500000.0, "SME Bronze"),
+                ("CIG-1004", "Emmanuel Opeto", 1000000.0, "Corporate Gold"),
+                ("CIG-1005", "Nia Thatiah", 1000000.0, "Retail Silver")
 
             ])
 

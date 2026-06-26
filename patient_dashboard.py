@@ -106,12 +106,30 @@ class PatientDashboard(ctk.CTk):
 )
         self.lbl_estimate_title.pack(pady=(15, 5))
 
+        # Benefit utilization section
+        self.lbl_usage_title = ctk.CTkLabel(
+        self,
+        text="📊 Insurance Benefit Utilization",
+        font=ctk.CTkFont(size=15, weight="bold")
+)
+        self.lbl_usage_title.pack(pady=(15, 5))
+
         # Progress bar showing insurance utilization
         self.pulse_bar = ctk.CTkProgressBar(
             self,
             width=400
         )
         self.pulse_bar.pack(pady=20)
+
+
+        # Displays percentage and benefit summary
+        self.lbl_usage = ctk.CTkLabel(
+        self,
+        text="Benefit usage will appear here.",
+        justify="left",
+        font=ctk.CTkFont(size=13)
+)
+        self.lbl_usage.pack(pady=10)
 
         # Textbox used to display the cost estimate
         self.txt_estimate = ctk.CTkTextbox(
@@ -167,7 +185,26 @@ class PatientDashboard(ctk.CTk):
       utilization = used / annual_limit
 
       # Update the progress bar
+      # Update progress bar
       self.pulse_bar.set(utilization)
+
+# Change progress bar color based on utilization
+      if utilization < 0.5:
+        self.pulse_bar.configure(progress_color="green")
+      elif utilization < 0.8:
+        self.pulse_bar.configure(progress_color="orange")
+      else:
+        self.pulse_bar.configure(progress_color="red")
+
+# Display benefit usage details
+      self.lbl_usage.configure(
+        text=(
+        f"Usage: {utilization * 100:.0f}%\n\n"
+        f"Annual Limit: KSh {annual_limit:,.2f}\n"
+        f"Used: KSh {used:,.2f}\n"
+        f"Remaining: KSh {remaining:,.2f}"
+    )
+)
 
       # Display the patient's insurance details
       self.lbl_info.configure(
