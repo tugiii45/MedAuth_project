@@ -1,9 +1,9 @@
-"""MedAuth application entry-point.
+"""MedAuth application entry point.
 
-This module is responsible for:
-- Initializing the local SQLite database schema (and seeding mock data on first run)
-- Showing the login gate
-- Launching the main claims adjudication UI after successful authentication
+This file starts the MedAuth application by:
+- Setting up the database
+- Displaying the login window
+- Opening the patient dashboard after a successful login
 """
 
 import sys
@@ -14,33 +14,38 @@ from case_manager import CaseManagerDashboard
 from patient_dashboard import PatientDashboard
 
 
+# Main function that starts the application
 def main():
-    """Start the MedAuth desktop application.
+    """
+    Starts the MedAuth desktop application.
 
-    The UI requires the database layer, so we initialize it first. If DB setup fails,
-    the program terminates early with a clear error message.
+    It first prepares the database, then displays
+    the login screen. After a successful login,
+    the patient dashboard is opened.
     """
 
-    # 1) Initialize database first to ensure member/policy/tariff data is available.
+    # Initialize the database before launching the application
     try:
         print("Starting MedAuth System...")
         db.initialize_database()
+
+    # Stop the program if the database fails to initialize
     except Exception as e:
-        # If schema initialization fails, continuing would cause confusing runtime errors.
         print(f"CRITICAL ERROR: Database initialization failed: {e}")
         sys.exit(1)
 
-    # 2) Define the transition logic.
-    # This callback is passed into the login window; on successful auth it will run
-    # and show the main application.
+    # Function that opens the main dashboard
+    # after the user logs in successfully
     def start_app():
          app = PatientDashboard()
-         app.mainloop() 
+         app.mainloop()
 
-    # 3) Launch the login window (access gate) and block until the user authenticates.
+    # Create and display the login window
     login = LoginWindow(start_app)
     login.mainloop()
 
 
+# Run the application only when this file
+# is executed directly
 if __name__ == "__main__":
     main()
