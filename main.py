@@ -36,14 +36,11 @@ def main():
 
     # Function that opens the main dashboard
     # after the user logs in successfully
-    def start_app():
-         app = PatientDashboard()
-         app.mainloop()
+    
 
-    # Create and display the login window
-    login = LoginWindow(start_app)
+
+    login = LoginWindow(None)
     login.mainloop()
-
 
 # Run the application only when this file
 # is executed directly

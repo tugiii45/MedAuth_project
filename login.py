@@ -134,12 +134,16 @@ class LoginWindow(ctk.CTk):
 
     def grant_access(self, role):
 
-     self.destroy()
+      self.destroy()
 
-     if role == "case_manager":
-        app = CaseManagerDashboard()
+      if role == "case_manager":
+        app = CaseManagerDashboard(self.show_login)
         app.mainloop()
 
-     elif role == "patient":
-        app = PatientDashboard()
-        app.mainloop()
+      elif role == "patient":
+       app = PatientDashboard(self.show_login)
+       app.mainloop()
+
+    def show_login(self):
+      login = LoginWindow(None)
+      login.mainloop()

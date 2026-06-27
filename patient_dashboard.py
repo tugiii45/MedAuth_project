@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox
 
+
 # Import database functions used to retrieve member information
 # and estimate procedure costs.
 from database import (
@@ -12,10 +13,11 @@ from database import (
 # Main Patient Dashboard window
 class PatientDashboard(ctk.CTk):
 
-    def __init__(self):
-        # Initialize the main application window
+    def __init__(self, logout_callback):
         super().__init__()
 
+        self.logout_callback = logout_callback
+    
         # Configure window title and size
         self.title("🏥 MedAuth Patient Portal")
         self.geometry("900x600")
@@ -27,6 +29,17 @@ class PatientDashboard(ctk.CTk):
             font=ctk.CTkFont(size=20, weight="bold")
         )
         self.header.pack(pady=20)
+
+        self.btn_logout = ctk.CTkButton(
+        self,
+        text="Logout",
+        width=100,
+        fg_color="red",
+        hover_color="darkred",
+        command=self.logout
+)
+
+        self.btn_logout.place(relx=0.97, y=25, anchor="ne")
 
         # Member ID label
         self.lbl_member = ctk.CTkLabel(
@@ -154,7 +167,7 @@ class PatientDashboard(ctk.CTk):
             text="Patient information will appear here"
         )
         self.lbl_info.pack()
-
+    
 
     # Loads patient details and displays insurance information
     def load_patient_data(self):
@@ -271,3 +284,9 @@ class PatientDashboard(ctk.CTk):
 
        # Lock the textbox again after updating it
        self.txt_estimate.configure(state="disabled")
+
+    def logout(self):
+       self.destroy()
+       self.logout_callback()   
+
+       
