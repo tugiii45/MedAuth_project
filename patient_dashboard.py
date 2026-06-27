@@ -111,14 +111,6 @@ class PatientDashboard(ctk.CTk):
 )
         self.btn_estimate.pack(pady=10)
 
-        # Title displayed above the estimate textbox
-        self.lbl_estimate_title = ctk.CTkLabel(
-        self,
-        text="💰 Estimate Summary",
-        font=ctk.CTkFont(size=14, weight="bold")
-)
-        self.lbl_estimate_title.pack(pady=(15, 5))
-
         # Benefit utilization section
         self.lbl_usage_title = ctk.CTkLabel(
         self,
@@ -144,23 +136,6 @@ class PatientDashboard(ctk.CTk):
 )
         self.lbl_usage.pack(pady=10)
 
-        # Textbox used to display the cost estimate
-        self.txt_estimate = ctk.CTkTextbox(
-        self,
-        width=450,
-        height=140
-)
-        self.txt_estimate.pack(pady=10)
-
-        # Default message shown before an estimate is generated
-        self.txt_estimate.insert(
-    "1.0",
-    "Procedure cost estimate will appear here..."
-)
-
-        # Prevent the textbox from being edited by the user
-        self.txt_estimate.configure(state="disabled")
-
         # Label used to display patient information
         self.lbl_info = ctk.CTkLabel(
             self,
@@ -175,7 +150,7 @@ class PatientDashboard(ctk.CTk):
       # Retrieve and format the entered member ID
       member_id = self.ent_member.get().strip().upper()
 
-      # Search for the member in the database
+      # Search foself.txtr the member in the database
       member = lookup_member_data(member_id)
 
       # Display an error if the member does not exist
@@ -254,36 +229,6 @@ class PatientDashboard(ctk.CTk):
             "Unable to calculate the estimate."
         )
         return
-
-       # Enable editing so the textbox can be updated
-       self.txt_estimate.configure(state="normal")
-
-       # Clear any previous estimate
-       self.txt_estimate.delete("1.0", "end")
-
-       # Display the newly calculated estimate
-       self.txt_estimate.insert(
-    "1.0",
-    f"""
-       Hospital:
-       {hospital}
-
-       Procedure:
-       {procedure}
-
-       Pay Limit to be Charged:
-       KSh {estimate['tariff_cap']:,.2f}
-
-       Insurance Pays:
-       KSh {estimate['insurer_liability']:,.2f}
-
-       Patient Co-pay:
-       KSh {estimate['patient_copay']:,.2f}
-"""
-)
-
-       # Lock the textbox again after updating it
-       self.txt_estimate.configure(state="disabled")
 
     def logout(self):
        self.destroy()
