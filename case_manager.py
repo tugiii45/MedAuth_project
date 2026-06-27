@@ -23,7 +23,7 @@ class CaseManagerDashboard(ctk.CTk):
 
         # Window Setup (Fixed layout typo string)
         self.title("🛡️ MedAuth Pro — Claims Adjudication Portal")
-        self.geometry("950x650")
+        self.geometry("950x720")
         self.resizable(False, False)
 
         # Main Layout Grid
@@ -58,7 +58,7 @@ class CaseManagerDashboard(ctk.CTk):
         # WORKSPACE PANEL (Split into Left Input and Right Audit)
         # -------------------------------------------------------------
         self.workspace = ctk.CTkFrame(self, corner_radius=0, fg_color="transparent")
-        self.workspace.grid(row=1, column=0, sticky="nsew", padx=20, pady=20)
+        self.workspace.grid(row=1, column=0, sticky="nsew", padx=20, pady=(20, 35))
         self.workspace.grid_columnconfigure(0, weight=4)  # Left form
         self.workspace.grid_columnconfigure(1, weight=5)  # Right log
 
@@ -107,8 +107,8 @@ class CaseManagerDashboard(ctk.CTk):
         # Medical Procedure Menu
         self.lbl_procedure = ctk.CTkLabel(self.form_frame, text="Surgical Procedure Case:", font=ctk.CTkFont(weight="bold"))
         self.lbl_procedure.pack(pady=(5, 2), padx=20, anchor="w")
-        self.opt_procedure = ctk.CTkOptionMenu(self.form_frame, values=["Appendectomy", "Cholecystectomy", "GastroIntestinal"
-                "Maternal Procedures"
+        self.opt_procedure = ctk.CTkOptionMenu(self.form_frame, values=["Appendectomy", "Cholecystectomy", "GastroIntestinal",
+                "Maternal Procedures",
                 "Tonsillectomy"],
                   width=260)
         self.opt_procedure.pack(pady=(0, 15), padx=20, anchor="w")
@@ -177,7 +177,7 @@ class CaseManagerDashboard(ctk.CTk):
           text="Coverage utilization will appear here",
           justify="left"
 )
-        self.lbl_pulse_info.pack(pady=(5, 10))
+        self.lbl_pulse_info.pack(pady=(5, 40))
 
         
 

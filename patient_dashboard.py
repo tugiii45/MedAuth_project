@@ -20,7 +20,7 @@ class PatientDashboard(ctk.CTk):
     
         # Configure window title and size
         self.title("🏥 MedAuth Patient Portal")
-        self.geometry("900x600")
+        self.geometry("900x720")
 
         # Dashboard header
         self.header = ctk.CTkLabel(
@@ -124,7 +124,7 @@ class PatientDashboard(ctk.CTk):
             self,
             width=400
         )
-        self.pulse_bar.pack(pady=20)
+        self.pulse_bar.pack(pady=10)
 
 
         # Displays percentage and benefit summary
@@ -134,14 +134,14 @@ class PatientDashboard(ctk.CTk):
         justify="left",
         font=ctk.CTkFont(size=13)
 )
-        self.lbl_usage.pack(pady=10)
+        self.lbl_usage.pack(pady=5)
 
         # Label used to display patient information
         self.lbl_info = ctk.CTkLabel(
             self,
             text="Patient information will appear here"
         )
-        self.lbl_info.pack()
+        self.lbl_info.pack(pady=(15, 25))
     
 
     # Loads patient details and displays insurance information
@@ -199,37 +199,89 @@ class PatientDashboard(ctk.CTk):
         text=(
             f"Name: {member['name']}\n"
             f"Policy: {member['policy_tier']}\n"
-            f"Annual Limit: KSh {annual_limit:,.2f}\n"
-            f"Remaining Balance: KSh {remaining:,.2f}\n"
-            f"Utilization: {round(utilization * 100)}%"
         )
     )
 
     # Calculates and displays the estimated procedure cost
     def estimate_cost(self):
 
-       # Retrieve user selections
-       member_id = self.ent_member.get().strip().upper()
+    # Retrieve user selections
+      member_id = self.ent_member.get().strip().upper()
+      hospital = self.opt_hospital.get()
+      procedure = self.opt_procedure.get()
 
-       hospital = self.opt_hospital.get()
-
-       procedure = self.opt_procedure.get()
-
-       # Request an estimate from the database
-       estimate = estimate_procedure_cost(
+    # Request an estimate from the database
+      estimate = estimate_procedure_cost(
         member_id,
         hospital,
         procedure
     )
 
-       # Display an error if the estimate cannot be generated
-       if not estimate:
+    # Display an error if the estimate cannot be generated
+      if not estimate:
         messagebox.showerror(
             "Estimate",
             "Unable to calculate the estimate."
         )
         return
 
+      result = f"""
+==========================================
+          MEDAUTH COST ESTIMATE
+==========================================
+
+🏥 Hospital
+{hospital}
+
+🩺 Procedure
+{procedure}
+
+------------------------------------------
+
+💳 Tariff Cap
+KSh {estimate['tariff_cap']:,.2f}
+
+🏥 Insurance Pays
+KSh {estimate['insurer_liability']:,.2f}
+
+👤 Patient Co-pay
+KSh {estimate['patient_copay']:,.2f}
+
+==========================================
+This is an estimate based on the selected
+hospital, procedure and policy benefits.
+==========================================
+"""
+
+    # Create estimate window
+      estimate_window = ctk.CTkToplevel(self)
+      estimate_window.title("MedAuth Cost Estimate")
+      estimate_window.geometry("700x500")
+
+      lbl_title = ctk.CTkLabel(
+        estimate_window,
+        text="💰 MEDAUTH PROCEDURE COST ESTIMATE",
+        font=ctk.CTkFont(size=22, weight="bold")
+    )
+      lbl_title.pack(pady=(20, 10))
+
+      txt_estimate = ctk.CTkTextbox(
+        estimate_window,
+        font=ctk.CTkFont(size=15)
+    )
+      txt_estimate.pack(fill="both", expand=True, padx=20, pady=10)
+
+      txt_estimate.insert("1.0", result)
+      txt_estimate.configure(state="disabled")
+
+      btn_close = ctk.CTkButton(
+        estimate_window,
+        text="Close",
+        width=140,
+        command=estimate_window.destroy
+    )
+      btn_close.pack(pady=15)
+    
     def logout(self):
        self.destroy()
        self.logout_callback()   
