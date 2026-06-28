@@ -1,8 +1,6 @@
 import requests
 
 
-# Function to retrieve the diagnosis description
-# for a given ICD-10 code using the NLM API.
 def fetch_icd_description(code):
     """
     Looks up an ICD-10 code and returns its diagnosis description.

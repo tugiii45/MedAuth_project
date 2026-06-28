@@ -1,48 +1,45 @@
 """MedAuth application entry point.
 
-This file starts the MedAuth application by:
-- Setting up the database
-- Displaying the login window
-- Opening the patient dashboard after a successful login
+Responsibilities:
+- Initialize/seed the local SQLite database.
+- Launch the UI login gate.
+
+The dashboards (patient/case manager) are opened after successful login.
 """
 
 import sys
+
 import customtkinter as ctk
+
 import database as db
+from case_manager import CaseManagerDashboard  # noqa: F401 (kept for import-side registration / clarity)
 from login import LoginWindow
-from case_manager import CaseManagerDashboard
-from patient_dashboard import PatientDashboard
+from patient_dashboard import PatientDashboard  # noqa: F401
 
 
-# Main function that starts the application
-def main():
+def main() -> None:
+    """Start the MedAuth desktop application.
+
+    Workflow:
+    1) Initialize the database schema (and seed demo data if needed).
+    2) Start the login window.
+
+    If database initialization fails, the app exits with a non-zero code.
     """
-    Starts the MedAuth desktop application.
 
-    It first prepares the database, then displays
-    the login screen. After a successful login,
-    the patient dashboard is opened.
-    """
-
-    # Initialize the database before launching the application
     try:
         print("Starting MedAuth System...")
         db.initialize_database()
-
-    # Stop the program if the database fails to initialize
-    except Exception as e:
-        print(f"CRITICAL ERROR: Database initialization failed: {e}")
+    except Exception as exc:
+        print(f"CRITICAL ERROR: Database initialization failed: {exc}")
         sys.exit(1)
 
-    # Function that opens the main dashboard
-    # after the user logs in successfully
-    
-
-
+    # Launch the login gate. The window will open the correct dashboard
+    # based on the authenticated user's role.
     login = LoginWindow(None)
     login.mainloop()
 
-# Run the application only when this file
-# is executed directly
+
 if __name__ == "__main__":
     main()
+

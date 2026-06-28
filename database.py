@@ -205,67 +205,79 @@ def initialize_database():
 # --- APP INTERFACE FUNCTIONS ---
 
 def lookup_member_data(member_id):
-    """Lookup a member record and its policy attributes.
+    """Load a member's policy and balance information.
+
+    Args:
+        member_id: Member identifier as stored in the `members` table.
 
     Returns:
-        dict with keys:
-        - member_id
-        - name
-        - remaining_balance
-        - policy_tier
-        - copay_percent
-        - annual_limit
+        dict | None:
+            Returns a dictionary with:
+            - member_id
+            - name
+            - remaining_balance
+            - policy_tier
+            - copay_percent
+            - annual_limit
 
-        or None if the member does not exist.
+        Returns `None` if the member does not exist.
     """
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT m.member_id, m.name, m.remaining_balance,
-             m.policy_tier, p.copay_percent,
-             p.annual_limit
-             FROM members m
-             JOIN policies p
-                ON m.policy_tier = p.policy_tier
+                   m.policy_tier, p.copay_percent,
+                   p.annual_limit
+            FROM members m
+            JOIN policies p
+              ON m.policy_tier = p.policy_tier
             WHERE m.member_id = ?;
-        """, (member_id,))
-
+            """,
+            (member_id,),
+        )
         row = cursor.fetchone()
 
-    if row:
-        return {
-    "member_id": row["member_id"],
-    "name": row["name"],
-    "remaining_balance": row["remaining_balance"],
-    "policy_tier": row["policy_tier"],
-    "copay_percent": row["copay_percent"],
-    "annual_limit": row["annual_limit"]
-}
+    if not row:
+        return None
 
-    return None
+    return {
+        "member_id": row["member_id"],
+        "name": row["name"],
+        "remaining_balance": row["remaining_balance"],
+        "policy_tier": row["policy_tier"],
+        "copay_percent": row["copay_percent"],
+        "annual_limit": row["annual_limit"],
+    }
+
 
 
 def lookup_tariff_rate(hospital_name, procedure_name):
     """Fetch the contracted tariff cap for a hospital + procedure.
 
     Args:
-        hospital_name: facility name selected in the UI.
-        procedure_name: procedure label selected in the UI.
+        hospital_name: Facility name selected in the UI.
+        procedure_name: Procedure label selected in the UI.
 
     Returns:
-        float tariff cap if found, otherwise `None`.
+        float | None:
+            - Tariff cap if a matching contract exists.
+            - None if the contract is missing.
     """
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT tariff_cap 
-            FROM tariffs 
+        cursor.execute(
+            """
+            SELECT tariff_cap
+            FROM tariffs
             WHERE hospital_name = ? AND procedure_name = ?;
-        """, (hospital_name, procedure_name))
-        
+            """,
+            (hospital_name, procedure_name),
+        )
         row = cursor.fetchone()
-        
+
     return row["tariff_cap"] if row else None
 
 
@@ -280,38 +292,60 @@ def log_transaction(
     patient_copay,
     status,
 ):
-    """Insert an adjudication record into the ledger and optionally deduct balance.
+    """Write an adjudication decision to `authorization_ledger`.
 
-    Ledger semantics:
-    - Always inserts a row into `authorization_ledger` for auditability.
-    - If `status == "Approved"`, deducts `insurer_liability` from the member's
-      `remaining_balance`.
+    Side effects:
+    - Always inserts a row in `authorization_ledger` (audit trail).
+    - If `status == "Approved"`, deducts `insurer_liability` from
+      `members.remaining_balance`.
 
-    Args:
-        status: expected values come from the UI (`Approved` / `DECLINED`).
+    Notes:
+    - The current UI uses `Approved` vs `DECLINED` statuses.
     """
+
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        
-        # Ensure Foreign keys are caught during operations
+
+        # Ensure Foreign Key constraints are enforced.
         cursor.execute("PRAGMA foreign_keys = ON;")
-        
-        cursor.execute("""
+
+        cursor.execute(
+            """
             INSERT INTO authorization_ledger (
-                member_id, hospital_name, procedure_name, proposed_cost, 
-                allowed_amount, overcharge_blocked, insurer_liability, patient_copay, status
+                member_id,
+                hospital_name,
+                procedure_name,
+                proposed_cost,
+                allowed_amount,
+                overcharge_blocked,
+                insurer_liability,
+                patient_copay,
+                status
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-        """, (member_id, hospital_name, procedure_name, proposed_cost, 
-              allowed_amount, overcharge_blocked, insurer_liability, patient_copay, status))
-        
-        # Deduct insurer liability from the member's remaining limit if safe & approved
+            """,
+            (
+                member_id,
+                hospital_name,
+                procedure_name,
+                proposed_cost,
+                allowed_amount,
+                overcharge_blocked,
+                insurer_liability,
+                patient_copay,
+                status,
+            ),
+        )
+
         if status == "Approved":
-            cursor.execute("""
-                UPDATE members 
-                SET remaining_balance = remaining_balance - ? 
+            cursor.execute(
+                """
+                UPDATE members
+                SET remaining_balance = remaining_balance - ?
                 WHERE member_id = ?;
-            """, (insurer_liability, member_id))
-            
+                """,
+                (insurer_liability, member_id),
+            )
+
         conn.commit()
 
 
