@@ -93,14 +93,12 @@ class LoginWindow(ctk.CTk):
             # Query only the password value we need for verification.
             with get_db_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                 """
-                 SELECT password_hash, role
-                 FROM users
-                 WHERE username = ?;
-                 """,
-                  (username,),
-               )
+
+                cursor.execute("""
+             SELECT password_hash, role, member_id
+             FROM users
+             WHERE username = ?;
+              """, (username,))
                 row = cursor.fetchone()
 
             # If a record exists, compare stored value to user-entered secret.
@@ -108,6 +106,7 @@ class LoginWindow(ctk.CTk):
             if row and row["password_hash"] == password:
 
              role = row["role"]
+             member_id = row["member_id"]
 
              self.lbl_status.configure(
               text="✅ Verification successful! Loading...",
@@ -116,8 +115,9 @@ class LoginWindow(ctk.CTk):
 
              self.after(
               600,
-               lambda: self.grant_access(role)
-    ) 
+             lambda: self.grant_access(role, member_id)
+)
+    
 
 
             else:
@@ -132,17 +132,17 @@ class LoginWindow(ctk.CTk):
                 text_color="#e53e3e",
             )
 
-    def grant_access(self, role):
+    def grant_access(self, role, member_id):
 
-      self.destroy()
+       self.destroy()
 
-      if role == "case_manager":
+       if role == "case_manager":
         app = CaseManagerDashboard(self.show_login)
         app.mainloop()
 
-      elif role == "patient":
-       app = PatientDashboard(self.show_login)
-       app.mainloop()
+       elif role == "patient":
+        app = PatientDashboard(member_id, self.show_login)
+        app.mainloop()
 
     def show_login(self):
       login = LoginWindow(None)

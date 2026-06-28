@@ -38,7 +38,8 @@ def initialize_users_table():
             CREATE TABLE IF NOT EXISTS users (
                 username TEXT PRIMARY KEY,
                 password_hash TEXT NOT NULL,
-                role TEXT NOT NULL
+                role TEXT NOT NULL,
+                member_id TEXT
             );
             """
         )
@@ -48,11 +49,20 @@ def initialize_users_table():
         if cursor.fetchone()[0] == 0:
             # Security note: In production, store a real salted hash (bcrypt/argon2).
             cursor.executemany(
-    "INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?);",
+    """
+    INSERT INTO users
+    (username, password_hash, role, member_id)
+    VALUES (?, ?, ?, ?);
+    """,
     [
-        ("admin", "1234", "case_manager"),
-        ("patient1", "1234", "patient")
+        ("admin", "1234", "case_manager", None),
+        ("conrad", "1234", "patient", "CIG-1001"),
+        ("cate", "1234", "patient", "CIG-1002"),
+        ("reagan", "1234", "patient", "CIG-1003"),
+        ("emmanuel", "1234", "patient", "CIG-1004"),
+        ("nia", "1234", "patient", "CIG-1005")
     ]
+
 )
             
         conn.commit()

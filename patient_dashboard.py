@@ -13,9 +13,10 @@ from database import (
 # Main Patient Dashboard window
 class PatientDashboard(ctk.CTk):
 
-    def __init__(self, logout_callback):
+   def __init__(self, member_id, logout_callback):
         super().__init__()
 
+        self.member_id = member_id
         self.logout_callback = logout_callback
     
         # Configure window title and size
@@ -41,19 +42,6 @@ class PatientDashboard(ctk.CTk):
 
         self.btn_logout.place(relx=0.97, y=25, anchor="ne")
 
-        # Member ID label
-        self.lbl_member = ctk.CTkLabel(
-            self,
-            text="INSURANCE CARD ID"
-        )
-        self.lbl_member.pack()
-
-        # Entry field for the patient to enter their member ID
-        self.ent_member = ctk.CTkEntry(
-            self,
-            width=250
-        )
-        self.ent_member.pack(pady=10)
 
         # Hospital selection label
         self.lbl_hospital = ctk.CTkLabel(
@@ -145,13 +133,11 @@ class PatientDashboard(ctk.CTk):
     
 
     # Loads patient details and displays insurance information
-    def load_patient_data(self):
+   def load_patient_data(self):
 
       # Retrieve and format the entered member ID
-      member_id = self.ent_member.get().strip().upper()
+      member = lookup_member_data(self.member_id)
 
-      # Search foself.txtr the member in the database
-      member = lookup_member_data(member_id)
 
       # Display an error if the member does not exist
       if not member:
@@ -203,19 +189,19 @@ class PatientDashboard(ctk.CTk):
     )
 
     # Calculates and displays the estimated procedure cost
-    def estimate_cost(self):
+   def estimate_cost(self):
 
     # Retrieve user selections
-      member_id = self.ent_member.get().strip().upper()
       hospital = self.opt_hospital.get()
       procedure = self.opt_procedure.get()
 
     # Request an estimate from the database
       estimate = estimate_procedure_cost(
-        member_id,
+        self.member_id,
         hospital,
         procedure
-    )
+)
+    
 
     # Display an error if the estimate cannot be generated
       if not estimate:
@@ -238,7 +224,7 @@ class PatientDashboard(ctk.CTk):
 
 ------------------------------------------
 
-💳 Tariff Cap
+💳 Maximum allowable charge
 KSh {estimate['tariff_cap']:,.2f}
 
 🏥 Insurance Pays
@@ -282,7 +268,7 @@ hospital, procedure and policy benefits.
     )
       btn_close.pack(pady=15)
     
-    def logout(self):
+   def logout(self):
        self.destroy()
        self.logout_callback()   
 

@@ -35,126 +35,23 @@ The system aims to:
 - Track insurance benefit utilization
 - Validate ICD-10 diagnosis codes using the National Library of Medicine (NLM) API
 
-
-
-#  Key Features
-
-##  Case Manager Portal
-
-- Secure login
-- Patient member verification
-- ICD-10 diagnosis lookup using NLM API
-- Hospital selection
-- Procedure selection
-- Automatic tariff validation
-- Co-payment calculation
-- Insurance liability calculation
-- Claim approval/decline engine
-- Automatic audit trail generation
-- Benefit Pulse Tracker
-- Letter of Guarantee generation
-- Procedure cost estimator
-- Logout functionality
-
-
-
-##  Patient Self-Service Portal
-
-- Secure login
-- View insurance information
-- View policy type
-- Monitor benefit utilization
-- Progress bar showing policy usage
-- Procedure cost estimation
-- Hospital selection
-- Procedure selection
-- Logout functionality
-
-
-
-#  Claims Adjudication Logic
-
-The system automatically:
-
-- Retrieves member information
-- Validates policy eligibility
-- Checks hospital tariff agreements
-- Applies policy co-pay rules
-- Calculates insurer liability
-- Calculates patient contribution
-- Checks remaining policy balance
-- Approves or declines claims
-- Logs every transaction into the audit database
-
-
-
-#  External API Integration
-
-MedAuth Pro integrates with the:
-
-**National Library of Medicine (NLM) Clinical Tables API**
-
-This API is used to:
-
-- Validate ICD-10 diagnosis codes
-- Retrieve official disease descriptions
-- Improve diagnostic accuracy during claims adjudication
-
-
-
-#  Technology Stack
-
-| Technology | Purpose |
-|------------|---------|
-| Python 3 | Core programming language |
-| CustomTkinter | Modern desktop GUI |
-| Tkinter | GUI components |
-| SQLite | Local database |
-| SQL | Database queries |
-| Threading | Background API requests |
-| REST API | ICD-10 lookup |
-| National Library of Medicine API | Diagnosis validation |
-
-
-
-#  Database
-
-The application uses SQLite to manage:
-
-- Members
-- Insurance policies
-- Hospital tariff rates
-- Claims history
-- Transaction audit logs
-
-
-
 #  Hardcoded Demo Users
-
-## Case Manager
 
 | Username | Password |
 |----------|----------|
-| admin | admin123 |
+| admin | 1234 | TO ACCESS THE CASE MANAGER DASHBOARD
+| patient1 | 1234 | TO ACCESS THE PATIENT DASHBOARD
 
+# Features
 
-
-##  Patient Accounts
-
-Example Member IDs:
-
-```
-CIG-1001
-CIG-1002
-CIG-1003
-CIG-1004
-```
-
-These IDs can be used to:
-
-- Load insurance information
-- Estimate procedure costs
-- View benefit utilization
+- Secure login for different users
+- Member eligibility verification
+- ICD-10 diagnostic code lookup using the NLM API
+- Procedure cost estimation
+- Tariff-based claim adjudication
+- Benefit Pulse Tracker
+- Automatic co-pay calculation
+- Letter of Guarantee (GOP) generation
 
 
 # Benefit Pulse Tracker
@@ -189,7 +86,7 @@ MedAuth-Pro/
 
 
 
-#  Installation
+#  Installation ( Contributions are highly appreciated )
 
 Clone the repository
 
