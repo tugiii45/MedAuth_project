@@ -40,8 +40,13 @@ The system aims to:
 | Username | Password |
 |----------|----------|
 | admin | 1234 | TO ACCESS THE CASE MANAGER DASHBOARD
-| patient1 | 1234 | TO ACCESS THE PATIENT DASHBOARD
+| conrad | 1234 | TO ACCESS THE CONRAD'S DASHBOARD
+| emmanuel | 1234 | TO ACCESS EMMANUEL'S DASHBOARD
+| nia | "  " |
+| cate | "  " |
+| reagan | "  " |
 
+*** NOTE !!! ALL THE USERS HAVE THE SAME PASSWORD ***
 # Features
 
 - Secure login for different users

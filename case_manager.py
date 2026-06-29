@@ -1,3 +1,18 @@
+"""case_manager.py
+
+UI + business-rule glue for MedAuth Pro's *insurance case manager* workflow.
+
+Key responsibilities:
+- Collect claim inputs from the desktop UI (member ID, facility, procedure, invoice amount).
+- Perform ICD-10 lookup via the NLM API in a background thread (keeps UI responsive).
+- Apply tariff cap + co-pay rules to compute patient/insurer liabilities.
+- Decide claim outcome (approved/declined) and write an audit ledger entry.
+- Generate a Letter of Guarantee (GOP) for approved claims.
+
+Note: This file focuses on UI orchestration and rule application.
+Actual persistence and tariff/member lookups live in `database.py`.
+"""
+
 import tkinter as tk
 import customtkinter as ctk
 import threading
@@ -10,11 +25,18 @@ from database import (
     lookup_member_data,
     lookup_tariff_rate,
     log_transaction,
-    estimate_procedure_cost
+    estimate_procedure_cost,
 )
 
 
 class CaseManagerDashboard(ctk.CTk):
+    """Claims Adjudication Dashboard.
+
+    Parameters
+    ----------
+    logout_callback:
+        Callable invoked after the dashboard window is destroyed (to reopen login UI).
+    """
 
     def __init__(self, logout_callback):
         super().__init__()
